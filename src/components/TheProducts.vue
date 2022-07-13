@@ -3,7 +3,8 @@
     <div class="container">
       <div class="products__inner">
         <div class="products__left">
-          <the-categories
+          <the-filter
+            class="products__filter"
             @select-category="selectCategory"
             :selectedCategory="selectedCategory"
           />
@@ -35,14 +36,14 @@
 <script>
 import ProductItem from './ProductItem.vue'
 import ProductPopup from './ProductPopup.vue'
-import TheCategories from './TheCategories.vue'
+import TheFilter from './TheFilter.vue'
 import ThePagination from './ThePagination.vue'
 import { mapGetters } from 'vuex'
 export default {
   components: {
     ProductItem,
     ProductPopup,
-    TheCategories,
+    TheFilter,
     ThePagination
   },
   data () {
@@ -56,7 +57,7 @@ export default {
   },
   methods: {
     selectCategory (category) {
-      this.selectedCategory = category
+      this.selectedCategory = category.value
     },
     selectPage (page) {
       this.selectedPage = page
@@ -98,17 +99,16 @@ export default {
           query: { category: value.category, page: value.page }
         })
       }
-      this.fetchProducts()
     },
     async '$route.query' () {
       if (Object.keys(this.$route.query).length === 0) {
         this.selectedCategory = ''
         this.selectedPage = 1
-        return
       } else {
         this.selectedCategory = this.$route.query.category
         this.selectedPage = this.$route.query.page
       }
+      this.fetchProducts()
     },
     isPopupOpen () {
       if (this.isPopupOpen) {
@@ -119,27 +119,46 @@ export default {
     }
   },
   created () {
-    if (this.$route.query.category) {
+    if (this.$route.query.category && this.$route.query.page) {
       this.selectedCategory = this.$route.query.category
-    }
-
-    if (this.$route.query.page) {
       this.selectedPage = this.$route.query.page
     }
-
-    this.fetchProducts()
+    
+    if (Object.keys(this.$route.query).length === 0) {
+      this.fetchProducts()
+    }
   }
 }
 </script>
 <style lang="scss">
 .products {
+  // .products__inner
+
   &__inner {
     display: flex;
     gap: 20px;
   }
+
+  // .products__left
+
+  &__left {
+    flex: 0 0 200px;
+  }
+
+  // .products__filter
+
+  &__filter {
+    width: 100%;
+  }
+
+  // .products__right
+
   &__right {
     flex-grow: 1;
   }
+
+  // .products__items
+
   &__items {
     display: grid;
     grid-template-columns: repeat(3, 300px);
