@@ -18,11 +18,19 @@
               @open-popup="openPopup(product.id)"
             />
           </div>
-          <the-pagination
-            :selectedPage="selectedPage"
-            :totalPages="totalPages"
-            @select-page="selectPage"
-          />
+          <div class="products__pagination">
+            <paginate
+              v-model="selectedPage"
+              :page-count="totalPages"
+              :page-range="3"
+              :margin-pages="2"
+              :click-handler="selectPage"
+              :prev-text="'Prev'"
+              :next-text="'Next'"
+              :container-class="'pagination'"
+              :page-class="'pagination__item'"
+            />
+          </div>
           <product-popup
             v-if="isPopupOpen"
             :popupProductId="popupProductId"
@@ -37,20 +45,20 @@
 import ProductItem from './ProductItem.vue'
 import ProductPopup from './ProductPopup.vue'
 import TheFilter from './TheFilter.vue'
-import ThePagination from './ThePagination.vue'
+import Paginate from 'vuejs-paginate/src/components/Paginate.vue'
 import { mapGetters } from 'vuex'
 export default {
   components: {
     ProductItem,
     ProductPopup,
     TheFilter,
-    ThePagination
+    Paginate
   },
   data () {
     return {
       selectedPage: 1,
       selectedCategory: '',
-      totalPages: 3,
+      totalPages: 10,
       isPopupOpen: false,
       popupProductId: null
     }
@@ -119,12 +127,10 @@ export default {
     }
   },
   created () {
-    if (this.$route.query.category && this.$route.query.page) {
+    if (Object.keys(this.$route.query).length) {
       this.selectedCategory = this.$route.query.category
       this.selectedPage = this.$route.query.page
-    }
-    
-    if (Object.keys(this.$route.query).length === 0) {
+    } else {
       this.fetchProducts()
     }
   }
@@ -165,6 +171,46 @@ export default {
     justify-content: space-between;
     gap: 20px;
     margin-bottom: 20px;
+  }
+
+  // .products__pagination
+
+  &__pagination {
+    display: flex;
+    justify-content: center;
+  }
+}
+
+.pagination {
+  display: flex;
+  column-gap: 15px;
+  list-style-type: none;
+
+  // .pagination__item 
+
+  &__item {
+    width: 24px;
+    height: 24px;
+    background-color: transparent;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 14px;
+    font-weight: 500;
+    &:hover {
+      background-color: lightgrey;
+    }
+    &.disabled {
+      cursor: default;
+      &:hover {
+        background-color: transparent;
+      }
+    }
+    &.active {
+      background-color: black;
+      color: white;
+    }
   }
 }
 </style>
