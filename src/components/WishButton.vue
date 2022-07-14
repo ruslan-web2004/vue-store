@@ -1,5 +1,5 @@
 <template>
-  <router-link to="wishlist" class="wish-button">
+  <router-link :to="{ name: 'wishlist' }" class="wish-button">
     <img class="wish-button__icon" src="../assets/icons/wish.svg" alt="" />
     <div class="wish-button__count" v-if="count > 0">
       <span>{{ count }}</span>

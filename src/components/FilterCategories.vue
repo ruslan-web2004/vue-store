@@ -94,7 +94,7 @@ export default {
     & form {
       display: flex;
       flex-direction: column;
-      column-gap: 10px;
+      row-gap: 10px;
     }
   }
 

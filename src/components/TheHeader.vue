@@ -13,13 +13,11 @@
 </template>
 
 <script>
-import SearchForm from './SearchForm.vue'
 import TheLogo from './TheLogo.vue'
 import WishButton from './WishButton.vue'
 import CartButton from './CartButton.vue'
 export default {
   components: {
-    SearchForm,
     TheLogo,
     WishButton,
     CartButton

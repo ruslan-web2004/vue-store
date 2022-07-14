@@ -1,5 +1,5 @@
 <template>
-  <router-link to="cart" class="cart-button">
+  <router-link :to="{ name: 'cart' }" class="cart-button">
     <img class="cart-button__icon" src="../assets/icons/cart.svg" alt="cart" />
     <div class="cart-button__count" v-if="count > 0">
       <span>{{ count }}</span>
