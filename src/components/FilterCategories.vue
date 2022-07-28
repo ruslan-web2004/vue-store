@@ -1,22 +1,24 @@
 <template>
   <div class="categories">
     <div class="categories__title" @click="openList">
-      Категории
-      <span v-if="!isListOpen">+</span>
-      <span v-else>-</span>
+      <p>Категории</p>
+      <img v-if="!isListOpen" src="../assets/icons/plus.svg" />
+      <img v-else src="../assets/icons/minus.svg" />
     </div>
-    <div class="categories__list" v-if="isListOpen">
-      <form>
-        <filter-categories-item
-          class="categories__item"
-          v-for="category in categoryItems"
-          :key="category.value"
-          :category="category"
-          @select-category="selectCategory(category)"
-          :selectedCategory="selectedCategory"
-        />
-      </form>
-    </div>
+    <transition name="list">
+      <div class="categories__list" v-if="isListOpen">
+        <form>
+          <filter-categories-item
+            class="categories__item"
+            v-for="category in categoryItems"
+            :key="category.value"
+            :category="category"
+            @select-category="selectCategory(category)"
+            :selectedCategory="selectedCategory"
+          />
+        </form>
+      </div>
+    </transition>
   </div>
 </template>
 
@@ -76,15 +78,16 @@ export default {
   // .categories__title
 
   &__title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     font-size: 14px;
     font-weight: 700;
-    position: relative;
     margin-bottom: 15px;
     cursor: pointer;
-    & span {
-      position: absolute;
-      top: 0;
-      right: 0;
+    & img {
+      width: 15px;
+      height: 15px;
     }
   }
 
@@ -102,5 +105,16 @@ export default {
 
   &__item {
   }
+}
+
+// Animation
+.list-enter-active,
+.list-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.list-enter-from,
+.list-leave-to {
+  opacity: 0;
 }
 </style>

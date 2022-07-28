@@ -11,6 +11,7 @@
 body {
     font-family: 'Lato', sans-serif;
     font-weight: 400;
+    background-color: #eff3f6;
 }
 
 .container {

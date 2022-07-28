@@ -9,7 +9,7 @@ export const cartModule = {
     getTotalPrice (state) {
       if (state.cartItems.length) {
         let result = []
-        state.cartItems.forEach((item) => {
+        state.cartItems.forEach(item => {
           result.push(item.price * item.quantity)
         })
         return result.reduce((acc, item) => acc + item, 0)
@@ -18,14 +18,14 @@ export const cartModule = {
       }
     },
     getCartItemsCount (state) {
-      return state.cartItems.reduce((acc, item) => acc + item.quantity, 0)
+      return state.cartItems.length
     }
   },
   mutations: {
     addToCart (state, item) {
       if (state.cartItems.length) {
         let isCartItemExists = false
-        state.cartItems.map((cartItem) => {
+        state.cartItems.map(cartItem => {
           if (item.id == cartItem.id && item.size == cartItem.size) {
             isCartItemExists = true
             cartItem.quantity++
@@ -40,6 +40,9 @@ export const cartModule = {
     },
     removeFromCart (state, index) {
       state.cartItems.splice(index, 1)
+    },
+    cleanCart(state) {
+      state.cartItems = []
     }
   },
   actions: {
@@ -48,6 +51,9 @@ export const cartModule = {
     },
     removeFromCart ({ commit }, index) {
       commit('removeFromCart', index)
+    },
+    cleanCart ({commit}) {
+      commit('cleanCart')
     }
   },
   namespaced: true

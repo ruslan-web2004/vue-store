@@ -13,7 +13,7 @@
           <button class="product__btn" @click="$emit('open-popup')">
             <img src="../assets/icons/cart.svg" alt="" />
           </button>
-          <button @click="createItem" class="product__btn">
+          <button @click="addWish" class="product__btn">
             <img v-if="!isItemExists" src="../assets/icons/wish.svg" alt="" />
             <img v-else src="../assets/icons/active-wish.svg" alt="" />
           </button>
@@ -50,18 +50,14 @@ export default {
     }
   },
   methods: {
-    addWish (item) {
-      this.$store.dispatch('wish/addWish', item)
-    },
-    createItem () {
+    addWish () {
       const item = {
         id: this.product.id,
         image: this.product.images[0],
         title: this.product.title,
-        category: this.product.category,
         price: this.product.price
       }
-      this.addWish(item)
+      this.$store.dispatch('wish/addWish', item)
     }
   }
 }

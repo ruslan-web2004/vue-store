@@ -27,7 +27,10 @@ export default {
 
 <style lang="scss">
 .header {
+  background-color: white;
+  border-bottom: 1px solid black;
   margin-bottom: 32px;
+  padding: 15px 0;
   // .header__inner
 
   &__inner {

@@ -14,7 +14,7 @@ export default {
     FilterCategories
   },
   emits: {
-    "select-category": value => typeof value === "object"
+    'select-category': value => typeof value === 'object'
   },
   props: {
     selectedCategory: {
@@ -23,8 +23,7 @@ export default {
       default: ''
     }
   },
-  computed: {
-  },
+  computed: {},
   methods: {
     selectCategory (category) {
       this.$emit('select-category', category)
@@ -33,4 +32,6 @@ export default {
 }
 </script>
 
-<style></style>
+<style>
+
+</style>
