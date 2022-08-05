@@ -1,21 +1,26 @@
 <template>
-  <div class="container">
-    <div class="wish-list__title">Товары: ({{ count }})</div>
-    <div class="wish-list__items" v-if="wishItems.length > 0">
-      <wish-list-item
-        v-for="item in wishItems"
-        :key="item.id"
-        :item="item"
-        @remove-item="removeItem(item)"
-      />
+  <div class="wish-list">
+    <div class="container">
+      <div class="wish-list">
+        <div class="wish-list__title">Товары: ({{ count }})</div>
+        <div class="wish-list__items" v-if="wishItems.length > 0">
+          <wish-list-item
+            v-for="item in wishItems"
+            :key="item.id"
+            :item="item"
+            @remove-item="removeItem(item)"
+          />
+        </div>
+        <div v-else class="wish-list__empty">Ваш список желаний пуст</div>
+      </div>
     </div>
-    <div v-else class="wish-list__empty">Ваш список желаний пуст</div>
   </div>
 </template>
 
 <script>
 import { mapGetters } from 'vuex'
 import WishListItem from '../components/WishListItem.vue'
+import useConfirmBeforeActions from '../useConfirmBeforeActions'
 export default {
   components: {
     WishListItem
@@ -30,8 +35,13 @@ export default {
     })
   },
   methods: {
-    removeItem(item) {
-      this.$store.dispatch('wish/removeWish', item)
+    removeItem (item) {
+      useConfirmBeforeActions(
+        () => {
+          this.$store.dispatch('wish/removeWish', item)
+        },
+        { title: 'Удалить товар', question: 'Удалить товар из избранного?' }
+      )
     }
   }
 }

@@ -1,47 +1,55 @@
 <template>
   <popup-overlay @close="close">
     <div class="popup-product">
-      <product-slider class="popup-product__slider" :images="product.images" />
-      <div class="popup-product__info">
-        <div class="popup-product__head">
-          <h1 class="popup-product__head-title">{{ product.title }}</h1>
-          <div class="popup-product__head-price">
-            <span>{{ product.price }}</span>
-          </div>
-        </div>
-        <div class="popup-product__select-box">
-          <div class="popup-product__color">
-            <div class="popup-product__color-title">Цвет: <span></span></div>
-            <div class="popup-product__color-items">
-              <button
-                class="popup-product__color-item"
-                v-for="(color, index) in colors"
-                :key="color"
-                :class="{ active: color.value == this.product.color.value }"
-                @click="changeColor(index)"
-                :style="{ background: color.value }"
-              ></button>
+      <div class="popup-product__loading" v-if="isLoading">
+        <loading v-model:active="isLoading" :is-full-page="false"/>
+      </div>
+      <div v-else class="popup-product__content">
+        <product-slider
+          class="popup-product__slider"
+          :images="product.images"
+        />
+        <div class="popup-product__info">
+          <div class="popup-product__head">
+            <h1 class="popup-product__head-title">{{ product.title }}</h1>
+            <div class="popup-product__head-price">
+              <span>{{ product.price }}</span>
             </div>
           </div>
-          <div class="popup-product__size">
-            <div class="popup-product__size-title">Выберите размер</div>
-            <div class="popup-product__size-items">
-              <button
-                class="popup-product__size-item"
-                v-for="size in product.sizes"
-                :key="size"
-                :class="{ active: size == this.size }"
-                @click="changeSize(size)"
-              >
-                {{ size }}
-              </button>
+          <div class="popup-product__select-box">
+            <div class="popup-product__color">
+              <div class="popup-product__color-title">Цвет: <span></span></div>
+              <div class="popup-product__color-items">
+                <button
+                  class="popup-product__color-item"
+                  v-for="(color, index) in colors"
+                  :key="color"
+                  :class="{ active: color.value == this.product.color.value }"
+                  @click="changeColor(index)"
+                  :style="{ background: color.value }"
+                ></button>
+              </div>
+            </div>
+            <div class="popup-product__size">
+              <div class="popup-product__size-title">Выберите размер</div>
+              <div class="popup-product__size-items">
+                <button
+                  class="popup-product__size-item"
+                  v-for="size in product.sizes"
+                  :key="size"
+                  :class="{ active: size == this.size }"
+                  @click="changeSize(size)"
+                >
+                  {{ size }}
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-        <div class="popup-product__add">
-          <button class="popup-product__add-btn" @click="createItem">
-            Добавить в корзину
-          </button>
+          <div class="popup-product__add">
+            <button class="popup-product__add-btn" @click="createItem">
+              Добавить в корзину
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -51,28 +59,31 @@
 <script>
 import PopupOverlay from './PopupOverlay.vue'
 import ProductSlider from './ProductSlider.vue'
+import Loading from 'vue-loading-overlay'
 import fetchProduct from '../fetchProduct'
 export default {
   components: {
     PopupOverlay,
-    ProductSlider
+    ProductSlider,
+    Loading
   },
   props: {
     popupProductId: {
-      type: [Number, String],
+      type: Number,
       required: true,
       default: null
     }
   },
   emits: {
-    "close": null
+    close: null
   },
   data () {
     return {
       product: {},
       colors: [],
       groupProducts: [],
-      size: ''
+      size: '',
+      isLoading: true
     }
   },
   methods: {
@@ -107,6 +118,7 @@ export default {
       this.product = response
       this.colors = response.colors
       this.groupProducts = response.groupProducts
+      this.isLoading = false
     })
   }
 }
@@ -114,11 +126,26 @@ export default {
 
 <style lang="scss">
 .popup-product {
-  display: flex;
-  gap: 30px;
   min-height: 70vh;
   min-width: 70vw;
-  max-width: 70vw;
+  display: flex;
+
+  // .popup-product__loading
+
+  &__loading {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  // .popup-product__content
+
+  &__content {
+    display: flex;
+    gap: 30px;
+    width: 70vw;
+  }
 
   // .popup-product__slider
 

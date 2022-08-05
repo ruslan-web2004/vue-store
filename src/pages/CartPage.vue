@@ -4,10 +4,7 @@
       <div class="cart__arrange" v-if="cartItems.length">
         <div class="cart__bag">
           <div class="cart__bag-head">
-            <button
-              class="cart__remove-all"
-              @click="this.confirmPopupOpen = true"
-            >
+            <button class="cart__remove-all" @click="confirmCleanCart">
               Удалить все
             </button>
           </div>
@@ -40,38 +37,25 @@
       <div class="cart__empty" v-else>
         <span>Ваша корзина пуста</span>
       </div>
-      <confirm-popup
-        v-if="confirmPopupOpen"
-        @confirm="confirmCleanCart"
-        title="Удалить товары"
-        okText="Удалить"
-      >
-        Вы дейстивительно хотите удалить все товары? Отменить это действие будет
-        невозможно.
-      </confirm-popup>
+      <transition name="show"> </transition>
     </div>
   </div>
 </template>
 
 <script>
 import CartItem from '../components/CartItem.vue'
-import ConfirmPopup from '../components/ConfirmPopup.vue'
 import { mapActions, mapGetters } from 'vuex'
+import useConfirmBeforeActions from '../useConfirmBeforeActions'
+import gsap from 'gsap'
 export default {
   components: {
-    CartItem,
-    ConfirmPopup
+    CartItem
   },
   props: {
     products: {
       type: Array,
       required: false,
       default: null
-    }
-  },
-  data () {
-    return {
-      confirmPopupOpen: false
     }
   },
   computed: {
@@ -85,13 +69,26 @@ export default {
       cleanCart: 'cart/cleanCart'
     }),
     removeFromCart (index) {
-      this.$store.dispatch('cart/removeFromCart', index)
+      useConfirmBeforeActions(
+        () => {
+          this.$store.dispatch('cart/removeFromCart', index)
+        },
+        {
+          title: 'Удалить товар',
+          question: 'Вы действительно хотите удалить этот товар?'
+        }
+      )
     },
-    confirmCleanCart (bool) {
-      if (bool) {
-        this.cleanCart()
-      }
-      this.confirmPopupOpen = false
+    confirmCleanCart () {
+      useConfirmBeforeActions(
+        () => {
+          this.cleanCart()
+        },
+        {
+          title: 'Удалить товары',
+          question: 'Вы действительно хотите удалить все товары?'
+        }
+      )
     }
   }
 }

@@ -10,33 +10,50 @@
           />
         </div>
         <div class="products__right">
-          <div class="products__items">
-            <product-item
-              v-for="product in products"
-              :key="product.id"
-              :product="product"
-              @open-popup="openPopup(product.id)"
-            />
-          </div>
-          <div class="products__pagination">
-            <paginate
-              v-model="selectedPage"
-              :page-count="totalPages"
-              :page-range="3"
-              :margin-pages="2"
-              :click-handler="selectPage"
-              :prev-text="'Prev'"
-              :next-text="'Next'"
-              :container-class="'pagination'"
-              :page-class="'pagination__item'"
-            />
-          </div>
+          <transition name="products" mode="out-in">
+            <div v-if="isLoading" class="products__loading">
+              <loading v-model:active="isLoading" :is-full-page="false" />
+            </div>
+            <div v-else class="products__content">
+              <div class="products__items">
+                <product-item
+                  v-for="product in products"
+                  :key="product.id"
+                  :product="product"
+                  @open-popup="openPopup(product.id)"
+                />
+              </div>
+              <div
+                v-if="products.length == 0 && !isLoading"
+                class="products__empty"
+              >
+                Ничего не найдено
+              </div>
+              <div class="products__pagination">
+                <paginate
+                  v-model="selectedPage"
+                  :value="Number(selectedPage)"
+                  :page-count="totalPages"
+                  :page-range="3"
+                  :margin-pages="2"
+                  :click-handler="selectPage"
+                  :prev-text="'Prev'"
+                  :next-text="'Next'"
+                  :container-class="'pagination'"
+                  :page-class="'pagination__item'"
+                  :page-link-class="'pagination__link'"
+                />
+              </div>
+            </div>
+          </transition>
+        </div>
+        <transition name="popup">
           <product-popup
             v-if="isPopupOpen"
-            :popupProductId="popupProductId"
+            :popupProductId="Number(popupProductId)"
             @close="closePopup"
           />
-        </div>
+        </transition>
       </div>
     </div>
   </div>
@@ -46,13 +63,15 @@ import ProductItem from './ProductItem.vue'
 import ProductPopup from './ProductPopup.vue'
 import TheFilter from './TheFilter.vue'
 import Paginate from 'vuejs-paginate/src/components/Paginate.vue'
+import Loading from 'vue-loading-overlay'
 import { mapGetters } from 'vuex'
 export default {
   components: {
     ProductItem,
     ProductPopup,
     TheFilter,
-    Paginate
+    Paginate,
+    Loading
   },
   data () {
     return {
@@ -86,7 +105,8 @@ export default {
   },
   computed: {
     ...mapGetters({
-      products: 'products/getProducts'
+      products: 'products/getProducts',
+      isLoading: 'products/getIsLoading'
     }),
     pageStateOptions () {
       return {
@@ -130,9 +150,8 @@ export default {
     if (Object.keys(this.$route.query).length) {
       this.selectedCategory = this.$route.query.category
       this.selectedPage = this.$route.query.page
-    } else {
-      this.fetchProducts()
     }
+    this.fetchProducts()
   }
 }
 </script>
@@ -163,6 +182,16 @@ export default {
     flex-grow: 1;
   }
 
+  // .products__loading
+
+  &__loading {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
   // .products__items
 
   &__items {
@@ -171,6 +200,15 @@ export default {
     justify-content: space-between;
     gap: 20px;
     margin-bottom: 20px;
+  }
+
+  // .products__empty
+
+  &__empty {
+    font-size: 35px;
+    font-weight: 600;
+    text-align: center;
+    padding: 100px 0;
   }
 
   // .products__pagination
@@ -186,9 +224,28 @@ export default {
   column-gap: 15px;
   list-style-type: none;
 
-  // .pagination__item 
+  // .pagination__item
 
   &__item {
+    &.disabled {
+      .pagination__link {
+        cursor: default;
+        &:hover {
+          background-color: transparent;
+        }
+      }
+    }
+    &.active {
+      .pagination__link {
+        background-color: black;
+        color: white;
+      }
+    }
+  }
+
+  // .pagination__link
+
+  &__link {
     width: 24px;
     height: 24px;
     background-color: transparent;
@@ -201,16 +258,28 @@ export default {
     &:hover {
       background-color: lightgrey;
     }
-    &.disabled {
-      cursor: default;
-      &:hover {
-        background-color: transparent;
-      }
-    }
-    &.active {
-      background-color: black;
-      color: white;
-    }
   }
+}
+
+// Animation
+
+.popup-enter-active,
+.popup-leave-active {
+  transition: all 0.5s ease;
+}
+
+.popup-enter-from,
+.popup-leave-to {
+  opacity: 0;
+}
+
+.products-enter-active,
+.products-leave-active {
+  transition: all 0.5s ease;
+}
+
+.products-enter-from,
+.products-leave-to {
+  opacity: 0;
 }
 </style>

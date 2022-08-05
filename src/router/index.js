@@ -5,7 +5,7 @@ export default createRouter({
   routes: [
     {
       path: '/',
-      component: () => import('../pages/MainLayout.vue'),
+      component: () => import('../layouts/MainLayout.vue'),
       children: [
         {
           path: '',

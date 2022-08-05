@@ -103,6 +103,7 @@ export default {
     width: 100%;
     & img {
       width: 100%;
+
     }
     &.active {
       border: 1px solid black;

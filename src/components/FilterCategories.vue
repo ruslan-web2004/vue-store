@@ -1,29 +1,26 @@
 <template>
   <div class="categories">
-    <div class="categories__title" @click="openList">
+    <div class="categories__title" :class="{ active: isListOpen }" @click="openList">
       <p>Категории</p>
-      <img v-if="!isListOpen" src="../assets/icons/plus.svg" />
-      <img v-else src="../assets/icons/minus.svg" />
     </div>
     <transition name="list">
-      <div class="categories__list" v-if="isListOpen">
-        <form>
-          <filter-categories-item
-            class="categories__item"
-            v-for="category in categoryItems"
-            :key="category.value"
-            :category="category"
-            @select-category="selectCategory(category)"
-            :selectedCategory="selectedCategory"
-          />
-        </form>
-      </div>
+      <form class="categories__list" v-if="isListOpen">
+        <filter-categories-item
+          class="categories__item"
+          v-for="category in categoryItems"
+          :key="category.value"
+          :category="category"
+          @select-category="selectCategory(category)"
+          :selectedCategory="selectedCategory"
+        />
+      </form>
     </transition>
   </div>
 </template>
 
 <script>
 import FilterCategoriesItem from './FilterCategoriesItem.vue'
+import gsap from 'gsap'
 export default {
   components: {
     FilterCategoriesItem
@@ -66,7 +63,7 @@ export default {
       this.$emit('select-category', category)
     },
     openList () {
-      this.isListOpen = !this.isListOpen
+     this.isListOpen = !this.isListOpen
     }
   }
 }
@@ -85,20 +82,33 @@ export default {
     font-weight: 700;
     margin-bottom: 15px;
     cursor: pointer;
-    & img {
-      width: 15px;
-      height: 15px;
+    position: relative;
+    &::before, &::after {
+      content: '';
+      position: absolute;
+      width: 12px;
+      height: 2px;
+      background-color: black;
+      top: 9px;
+      right: 0;
+    }
+    &::after {
+      transform: rotate(-90deg);
+      transition: all 0.3s ease-in;
+    }
+    &.active {
+      &::after {
+        transform: rotate(0);
+      }
     }
   }
 
   // .categories__list
 
   &__list {
-    & form {
-      display: flex;
-      flex-direction: column;
-      row-gap: 10px;
-    }
+    display: flex;
+    flex-direction: column;
+    row-gap: 10px;
   }
 
   // .categories__item
@@ -110,11 +120,12 @@ export default {
 // Animation
 .list-enter-active,
 .list-leave-active {
-  transition: opacity 0.5s ease;
+  transition: all 0.5s ease;
 }
 
 .list-enter-from,
 .list-leave-to {
+  transform: translateX(300px);
   opacity: 0;
 }
 </style>

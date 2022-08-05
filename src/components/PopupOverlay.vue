@@ -1,20 +1,20 @@
 <template>
   <div class="popup" @click="close">
-    <div class="popup__body">
-      <div class="popup__content" @click.stop>
+      <div class="popup__body" @click.stop>
         <button class="popup__close" @click="close">
-          <img src="../assets/icons/close.svg" alt="">
+          <img src="../assets/icons/close.svg" alt="" />
         </button>
-        <slot />
+        <div class="popup__content">
+          <slot />
+        </div>
       </div>
-    </div>
   </div>
 </template>
 
 <script>
 export default {
   emits: {
-    "close": null
+    close: null
   },
   methods: {
     close () {
@@ -34,23 +34,16 @@ export default {
   left: 0;
   overflow-x: hidden;
   overflow-y: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
 
   // .popup__body
 
   &__body {
-    min-height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 30px 10px;
-  }
-
-  // .popup__content
-
-  &__content {
     position: relative;
     background-color: white;
-    padding: 30px;
     border-radius: 15px;
   }
 
@@ -63,6 +56,28 @@ export default {
     border: none;
     background-color: transparent;
     cursor: pointer;
+  }
+
+  // .popup__content
+
+  &__content {
+    max-width: 70vw;
+    max-height: 70vh;
+    margin: 30px 0;
+    padding: 0 30px;
+    overflow-y: auto;
+    &::-webkit-scrollbar {
+      width: 8px;
+      height: 30%;
+    }
+    &::-webkit-scrollbar-thumb {
+      border-radius: 5px;
+      background-color: rgba(224,224,224,1);
+    }
+    &::-webkit-scrollbar-track {
+      border-radius: 5px;
+      background-color: rgba(247,248,250,1);
+    }
   }
 }
 </style>
