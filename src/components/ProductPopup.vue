@@ -2,7 +2,7 @@
   <popup-overlay @close="close">
     <div class="popup-product">
       <div class="popup-product__loading" v-if="isLoading">
-        <loading v-model:active="isLoading" :is-full-page="false"/>
+        <loading v-model:active="isLoading" :is-full-page="false" />
       </div>
       <div v-else class="popup-product__content">
         <product-slider
@@ -31,7 +31,9 @@
               </div>
             </div>
             <div class="popup-product__size">
-              <div class="popup-product__size-title">Выберите размер</div>
+              <div class="popup-product__size-title">
+                Выберите размер <span v-if="error" class="popup-product__size-title-error">Пожалуйста, выберите размер</span>
+              </div>
               <div class="popup-product__size-items">
                 <button
                   class="popup-product__size-item"
@@ -61,6 +63,7 @@ import PopupOverlay from './PopupOverlay.vue'
 import ProductSlider from './ProductSlider.vue'
 import Loading from 'vue-loading-overlay'
 import fetchProduct from '../fetchProduct'
+import gsap from 'gsap'
 export default {
   components: {
     PopupOverlay,
@@ -83,7 +86,8 @@ export default {
       colors: [],
       groupProducts: [],
       size: '',
-      isLoading: true
+      isLoading: true,
+      error: false
     }
   },
   methods: {
@@ -100,17 +104,32 @@ export default {
       this.$store.dispatch('cart/addToCart', item)
     },
     createItem () {
-      const item = {
-        id: this.product.id,
-        image: this.product.images[0],
-        title: this.product.title,
-        color: this.product.color,
-        size: this.size,
-        category: this.product.category,
-        price: this.product.price,
-        quantity: 1
+      if (this.size !== '') {
+        const item = {
+          id: this.product.id,
+          image: this.product.images[0],
+          title: this.product.title,
+          color: this.product.color,
+          size: this.size,
+          category: this.product.category,
+          price: this.product.price,
+          quantity: 1
+        }
+        this.addToCart(item)
+        if (this.error) {
+          this.error = false
+        }
+      } else {
+        const tl = gsap.timeline()
+        tl
+          .from('.popup-product__size-items', { duration: 0.1, x: 10})
+          .from('.popup-product__size-items', { duration: 0.1, x: -10})
+          .from('.popup-product__size-items', { duration: 0.1, x: 10})
+          .from('.popup-product__size-items', { duration: 0.1, x: -10})
+          .from('.popup-product__size-items', { duration: 0.1, x: 10})
+          .from('.popup-product__size-items', { duration: 0.1, x: -10})
+        this.error = true
       }
-      this.addToCart(item)
     }
   },
   created () {
@@ -255,6 +274,14 @@ export default {
     font-size: 18px;
     font-weight: 600;
     margin-bottom: 15px;
+  }
+
+  // .popup-product__size-title-error
+
+  &__size-title-error {
+    font-size: 14px;
+    color: red;
+    margin-left: 10px;
   }
 
   // .popup-product__size-items

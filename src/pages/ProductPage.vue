@@ -24,7 +24,12 @@
             </div>
           </div>
           <div class="product-intro__size">
-            <div class="product-intro__size-title">Выберите размер</div>
+            <div class="product-intro__size-title">
+              Выберите размер
+              <span v-if="error" class="product-intro__size-title-error"
+                >Пожалуйста, выберите размер</span
+              >
+            </div>
             <div class="product-intro__size-items">
               <button
                 class="product-intro__size-item"
@@ -50,6 +55,7 @@
 <script>
 import ProductSlider from '../components/ProductSlider.vue'
 import fetchProduct from '../fetchProduct'
+import gsap from 'gsap'
 export default {
   components: {
     ProductSlider
@@ -59,7 +65,8 @@ export default {
       product: {},
       colors: [],
       groupProducts: [],
-      size: ''
+      size: '',
+      error: false
     }
   },
   methods: {
@@ -73,17 +80,31 @@ export default {
       this.$store.dispatch('cart/addToCart', item)
     },
     createItem () {
-      const item = {
-        id: this.product.id,
-        image: this.product.images[0],
-        title: this.product.title,
-        color: this.product.color,
-        size: this.size,
-        category: this.product.category,
-        price: this.product.price,
-        quantity: 1
+      if (this.size !== '') {
+        const item = {
+          id: this.product.id,
+          image: this.product.images[0],
+          title: this.product.title,
+          color: this.product.color,
+          size: this.size,
+          category: this.product.category,
+          price: this.product.price,
+          quantity: 1
+        }
+        this.addToCart(item)
+        if (this.error) {
+          this.error = false
+        }
+      } else {
+        const tl = gsap.timeline()
+        tl.from('.product-intro__size-items', { duration: 0.1, x: 10 })
+          .from('.product-intro__size-items', { duration: 0.1, x: -10 })
+          .from('.product-intro__size-items', { duration: 0.1, x: 10 })
+          .from('.product-intro__size-items', { duration: 0.1, x: -10 })
+          .from('.product-intro__size-items', { duration: 0.1, x: 10 })
+          .from('.product-intro__size-items', { duration: 0.1, x: -10 })
+        this.error = true
       }
-      this.addToCart(item)
     }
   },
   created () {
@@ -193,6 +214,14 @@ export default {
     font-size: 18px;
     font-weight: 600;
     margin-bottom: 15px;
+  }
+
+  // .product-intro__size-title-error
+
+  &__size-title-error {
+    font-size: 14px;
+    color: red;
+    margin-left: 10px;
   }
 
   // .product-intro__size-items
