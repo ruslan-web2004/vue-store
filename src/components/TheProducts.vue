@@ -1,5 +1,5 @@
 <template>
-  <div class="products">
+  <section class="products">
     <div class="container">
       <div class="products__inner">
         <div class="products__left">
@@ -10,13 +10,14 @@
           />
         </div>
         <div class="products__right">
-          <transition name="products" mode="out-in">
+          <transition name="fade" mode="out-in">
             <div v-if="isLoading" class="products__loading">
               <loading v-model:active="isLoading" :is-full-page="false" />
             </div>
             <div v-else class="products__content">
               <div class="products__items">
                 <product-item
+                  class="products__item"
                   v-for="product in products"
                   :key="product.id"
                   :product="product"
@@ -37,8 +38,12 @@
                   :page-range="3"
                   :margin-pages="2"
                   :click-handler="selectPage"
-                  :prev-text="'Prev'"
-                  :next-text="'Next'"
+                  :prev-class="'pagination__button'"
+                  :prev-link-class="'pagination__prev'"
+                  :next-class="'pagination__button'"
+                  :next-link-class="'pagination__next'"
+                  :prev-text="'<img src=src/assets/icons/arrow-right.svg />'"
+                  :next-text="'<img src=src/assets/icons/arrow-right.svg />'"
                   :container-class="'pagination'"
                   :page-class="'pagination__item'"
                   :page-link-class="'pagination__link'"
@@ -47,7 +52,7 @@
             </div>
           </transition>
         </div>
-        <transition name="popup">
+        <transition name="fade">
           <product-popup
             v-if="isPopupOpen"
             :popupProductId="Number(popupProductId)"
@@ -56,7 +61,7 @@
         </transition>
       </div>
     </div>
-  </div>
+  </section>
 </template>
 <script>
 import ProductItem from './ProductItem.vue'
@@ -77,7 +82,7 @@ export default {
     return {
       selectedPage: 1,
       selectedCategory: '',
-      totalPages: 10,
+      limit: 4,
       isPopupOpen: false,
       popupProductId: null
     }
@@ -92,6 +97,7 @@ export default {
     fetchProducts () {
       this.$store.dispatch('products/fetchProducts', {
         page: this.selectedPage,
+        limit: this.limit,
         category: this.selectedCategory
       })
     },
@@ -106,13 +112,17 @@ export default {
   computed: {
     ...mapGetters({
       products: 'products/getProducts',
-      isLoading: 'products/getIsLoading'
+      isLoading: 'products/getIsLoading',
+      productsCount: 'products/getProductsCount'
     }),
     pageStateOptions () {
       return {
         category: this.selectedCategory,
         page: this.selectedPage
       }
+    },
+    totalPages () {
+      return Math.ceil(this.productsCount / this.limit)
     }
   },
   watch: {
@@ -162,12 +172,24 @@ export default {
   &__inner {
     display: flex;
     gap: 20px;
+    @media screen and (max-width: 850px) {
+      gap: 15px;
+    }
+    @media screen and (max-width: 600px) {
+      gap: 10px;
+    }
   }
 
   // .products__left
 
   &__left {
     flex: 0 0 200px;
+    @media screen and (max-width: 1050px) {
+      flex: 0 0 170px;
+    }
+    @media screen and (max-width: 500px) {
+      flex: 0 0 120px;
+    }
   }
 
   // .products__filter
@@ -195,11 +217,24 @@ export default {
   // .products__items
 
   &__items {
-    display: grid;
-    grid-template-columns: repeat(3, 300px);
-    justify-content: space-between;
-    gap: 20px;
+    display: flex;
+    flex-wrap: wrap;
     margin-bottom: 20px;
+  }
+
+  // .products__item
+
+  &__item {
+    flex: 0 0 25%;
+    @media screen and (max-width: 1050px) {
+      flex: 0 0 33.33%;
+    }
+    @media screen and (max-width: 850px) {
+      flex: 0 0 50%;
+    }
+    @media screen and (max-width: 600px) {
+      flex: 0 0 100%;
+    }
   }
 
   // .products__empty
@@ -255,8 +290,36 @@ export default {
     align-items: center;
     font-size: 14px;
     font-weight: 500;
+    transition: all 0.3s ease;
     &:hover {
       background-color: lightgrey;
+    }
+  }
+
+  // .pagination__button
+
+  &__button {
+    &.disabled {
+      opacity: 0.3;
+      & a {
+        cursor: default;
+      }
+    }
+  }
+
+  // .pagination__prev, .pagination__next
+
+  &__prev, &__next {
+    & img {
+      width: 20px;
+    }
+  }
+
+  // .pagination__prev
+
+  &__prev {
+    img {
+      transform: rotate(180deg);
     }
   }
 }

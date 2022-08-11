@@ -1,6 +1,7 @@
 <template>
   <div class="filter">
     <filter-categories
+      class="filter__categories"
       @select-category="selectCategory"
       :selectedCategory="selectedCategory"
     />

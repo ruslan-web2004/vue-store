@@ -22,9 +22,9 @@ export default createRouter({
           component: () => import('../pages/CartPage.vue')
         },
         {
-          path: '/wishlist',
-          name: 'wishlist',
-          component: () => import('../pages/WishListPage.vue')
+          path: '/wishes',
+          name: 'wishes',
+          component: () => import('../pages/WishesPage.vue')
         }
       ]
     }

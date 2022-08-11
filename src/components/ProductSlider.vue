@@ -91,8 +91,13 @@ export default {
   // .product-slider__thumbs
 
   &__thumbs {
-    min-width: 0;
     flex: 0 0 80px;
+    display: flex;
+    flex-direction: column;
+    row-gap: 10px;
+    @media screen and (max-width: 540px) {
+      flex: 0 0 70px;
+    }
   }
 
   // .product-slider__thumbs-item
@@ -101,7 +106,13 @@ export default {
     border: 1px solid transparent;
     background-color: transparent;
     width: 100%;
+    position: relative;
+    padding-bottom: 133%;
     & img {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 100%;
       width: 100%;
 
     }
@@ -114,7 +125,6 @@ export default {
 
   &__main {
     min-width: 0;
-    flex: 1 1 auto;
     position: relative;
     &:hover {
       & .product-slider__main-prev,
@@ -151,6 +161,9 @@ export default {
     display: none;
     & img {
       width: 15px;
+    }
+    &:disabled {
+      opacity: 0.5;
     }
   }
 

@@ -1,31 +1,32 @@
 <template>
   <div class="cart-item">
     <div class="cart-item__image">
-      <img :src="product.image" alt="" />
+      <img :src="item.image" alt="" />
     </div>
     <div class="cart-item__info">
-      <div class="cart-item__title">{{ product.title }}</div>
-      <div class="cart-item__description">
-        <span>цвет {{ product.color.title }}, размер {{ product.size }}</span>
-      </div>
-      <div class="cart-item__buttons">
-        <button class="cart-item__button" :class="{ active: isWishItemExists }">
-          <span v-if="isWishItemExists">В избранном</span>
-          <span v-else @click="addWish">В избранное</span>
-        </button>
-        <button class="cart-item__button" @click="removeFromCart">
-          Удалить
-        </button>
+      <div class="cart-item__info-content">
+        <div class="cart-item__title">{{ item.title }}</div>
+        <div class="cart-item__description">
+          <span>цвет {{ item.color.title }}, размер {{ item.size }}</span>
+        </div>
+        <div class="cart-item__buttons">
+          <button class="cart-item__button">
+            <span @click="addToWishes">В избранное</span>
+          </button>
+          <button class="cart-item__button" @click="removeFromCart">
+            Удалить
+          </button>
+        </div>
       </div>
     </div>
     <div class="cart-item__price">{{ totalPrice }}</div>
     <div class="cart-item__quantity">
       <div
         class="cart-item__quantity-compute cart-item__quantity-compute--left"
-        :class="{ disabled: product.quantity <= 1 }"
+        :class="{ disabled: item.quantity <= 1 }"
         @click="decrementQuantity"
       ></div>
-      <input type="text" v-model="product.quantity" />
+      <input type="text" v-model="item.quantity" />
       <div
         class="cart-item__quantity-compute cart-item__quantity-compute--right"
         @click="incrementQuantity"
@@ -35,56 +36,38 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
 export default {
   props: {
-    product: {
+    item: {
       type: Object,
       required: true,
       default: null
     }
   },
   emits: {
-    'remove-from-cart': null
+    'remove-from-cart': null,
+    'add-to-wishes': null
   },
   computed: {
-    ...mapGetters({
-      wishItems: 'wish/getWishItems'
-    }),
-    isWishItemExists () {
-      let bool = false
-      this.wishItems.forEach(item => {
-        if (item.id == this.product.id) {
-          bool = true
-        }
-      })
-      return bool
-    },
     totalPrice () {
-      return this.product.price * this.product.quantity
+      return this.item.price * this.item.quantity
     }
   },
   methods: {
     incrementQuantity () {
-      this.product.quantity++
+      this.item.quantity++
     },
     decrementQuantity () {
-      if (this.product.quantity > 1) {
-        this.product.quantity--
+      if (this.item.quantity > 1) {
+        this.item.quantity--
       }
       return
     },
     removeFromCart () {
       this.$emit('remove-from-cart')
     },
-    addWish () {
-      const item = {
-        id: this.product.id,
-        image: this.product.image,
-        title: this.product.title,
-        price: this.product.price
-      }
-      this.$store.dispatch('wish/addWish', item)
+    addToWishes () {
+      this.$emit('add-to-wishes')
     }
   }
 }
@@ -92,30 +75,44 @@ export default {
 
 <style lang="scss">
 .cart-item {
-  width: 100%;
   display: flex;
+  flex-wrap: wrap;
+  row-gap: 10px;
   padding: 5px 0;
 
   // .cart-item__image
 
   &__image {
-    flex: 0 0 15%;
-    width: 120px;
+    flex: 0 0 120px;
     & img {
       width: 100%;
       height: 100%;
     }
     margin-right: 20px;
+    @media screen and (max-width: 540px) {
+      flex: 0 0 80px;
+      margin-right: 10px;
+    }
   }
 
   // .cart-item__info
 
   &__info {
-    flex: 0 0 40%;
+    flex: 1 1 auto;
     margin-right: 20px;
+    @media screen and (max-width: 540px) {
+      margin-right: 10px;
+    }
+  }
+
+  // .cart-item__info-content
+
+  &__info-content {
     display: flex;
     flex-direction: column;
     row-gap: 10px;
+    width: 190px;
+    height: 100%;
   }
 
   // .cart-item__title
@@ -160,8 +157,12 @@ export default {
     font-size: 18px;
     font-weight: 700px;
     color: #001a34;
-    flex: 0 0 25%;
+    flex: 1 1 auto;
+    min-width: 50px;
     margin-right: 20px;
+    @media screen and (max-width: 540px) {
+      margin-right: 10px;
+    }
   }
 
   // .cart-item__quantity

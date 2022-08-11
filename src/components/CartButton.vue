@@ -24,18 +24,12 @@ export default {
   align-items: center;
   text-decoration: none;
   color: black;
-  width: 30px;
-  height: 30px;
+  width: 40px;
 
   // .cart__icon
 
   &__icon {
-    width: 100%;
-  }
-
-  // .cart__count
-
-  &__count {
+    width: 30px;
   }
 }
 </style>

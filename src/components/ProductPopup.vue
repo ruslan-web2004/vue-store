@@ -1,57 +1,58 @@
 <template>
-  <popup-overlay @close="close">
+  <popup-overlay @close="close" :isLoading="isLoading">
     <div class="popup-product">
-      <div class="popup-product__loading" v-if="isLoading">
-        <loading v-model:active="isLoading" :is-full-page="false" />
-      </div>
-      <div v-else class="popup-product__content">
-        <product-slider
-          class="popup-product__slider"
-          :images="product.images"
-        />
-        <div class="popup-product__info">
-          <div class="popup-product__head">
-            <h1 class="popup-product__head-title">{{ product.title }}</h1>
-            <div class="popup-product__head-price">
-              <span>{{ product.price }}</span>
+      <product-slider class="popup-product__slider" :images="product.images" />
+      <div class="popup-product__info">
+        <div class="popup-product__head">
+          <h1 class="popup-product__head-title">{{ product.title }}</h1>
+          <div class="popup-product__head-price">
+            <span>{{ product.price }}</span>
+          </div>
+        </div>
+        <div class="popup-product__select-box">
+          <div class="popup-product__color">
+            <div class="popup-product__color-title">Цвет: <span></span></div>
+            <div class="popup-product__color-items">
+              <button
+                class="popup-product__color-item"
+                v-for="(color, index) in colors"
+                :key="color"
+                :class="{ active: color.value == this.product.color.value }"
+                @click="changeColor(index)"
+                :style="{ background: color.value }"
+              ></button>
             </div>
           </div>
-          <div class="popup-product__select-box">
-            <div class="popup-product__color">
-              <div class="popup-product__color-title">Цвет: <span></span></div>
-              <div class="popup-product__color-items">
-                <button
-                  class="popup-product__color-item"
-                  v-for="(color, index) in colors"
-                  :key="color"
-                  :class="{ active: color.value == this.product.color.value }"
-                  @click="changeColor(index)"
-                  :style="{ background: color.value }"
-                ></button>
-              </div>
+          <div class="popup-product__size">
+            <div class="popup-product__size-title">
+              Выберите размер
+              <span v-if="error" class="popup-product__size-title-error"
+                >Пожалуйста, выберите размер</span
+              >
             </div>
-            <div class="popup-product__size">
-              <div class="popup-product__size-title">
-                Выберите размер <span v-if="error" class="popup-product__size-title-error">Пожалуйста, выберите размер</span>
-              </div>
-              <div class="popup-product__size-items">
-                <button
-                  class="popup-product__size-item"
-                  v-for="size in product.sizes"
-                  :key="size"
-                  :class="{ active: size == this.size }"
-                  @click="changeSize(size)"
-                >
-                  {{ size }}
-                </button>
-              </div>
+            <div class="popup-product__size-items">
+              <button
+                class="popup-product__size-item"
+                v-for="size in product.sizes"
+                :key="size"
+                :class="{ active: size == this.size }"
+                @click="changeSize(size)"
+              >
+                {{ size }}
+              </button>
             </div>
           </div>
-          <div class="popup-product__add">
-            <button class="popup-product__add-btn" @click="createItem">
-              Добавить в корзину
-            </button>
-          </div>
+        </div>
+        <div class="popup-product__buttons">
+          <button class="popup-product__cart-btn" @click="addToCart">
+            <span>Добавить в корзину</span>
+          </button>
+          <button class="popup-product__wish-btn" @click="addToWishes">
+            <transition name="scale" mode="out-in">
+              <img v-if="!isWishExists" src="../assets/icons/wish.svg" />
+              <img v-else src="../assets/icons/active-wish.svg" />
+            </transition>
+          </button>
         </div>
       </div>
     </div>
@@ -61,14 +62,13 @@
 <script>
 import PopupOverlay from './PopupOverlay.vue'
 import ProductSlider from './ProductSlider.vue'
-import Loading from 'vue-loading-overlay'
 import fetchProduct from '../fetchProduct'
-import gsap from 'gsap'
+import { mapGetters } from 'vuex'
+import shake from '../animations/shake'
 export default {
   components: {
     PopupOverlay,
-    ProductSlider,
-    Loading
+    ProductSlider
   },
   props: {
     popupProductId: {
@@ -97,39 +97,62 @@ export default {
     changeSize (size) {
       this.size = size
     },
-    changeColor (id) {
-      this.product = this.groupProducts[id]
+    changeColor (index) {
+      this.product = this.groupProducts[index]
     },
-    addToCart (item) {
-      this.$store.dispatch('cart/addToCart', item)
-    },
-    createItem () {
+    addToCart () {
       if (this.size !== '') {
+        if (this.error) {
+          this.error = false
+        }
         const item = {
           id: this.product.id,
           image: this.product.images[0],
           title: this.product.title,
           color: this.product.color,
           size: this.size,
-          category: this.product.category,
           price: this.product.price,
           quantity: 1
         }
-        this.addToCart(item)
-        if (this.error) {
-          this.error = false
-        }
+        this.$store.dispatch('cart/addToCart', item)
       } else {
-        const tl = gsap.timeline()
-        tl
-          .from('.popup-product__size-items', { duration: 0.1, x: 10})
-          .from('.popup-product__size-items', { duration: 0.1, x: -10})
-          .from('.popup-product__size-items', { duration: 0.1, x: 10})
-          .from('.popup-product__size-items', { duration: 0.1, x: -10})
-          .from('.popup-product__size-items', { duration: 0.1, x: 10})
-          .from('.popup-product__size-items', { duration: 0.1, x: -10})
+        shake('.popup-product__size-items')
         this.error = true
       }
+    },
+    removeFromWishes (wish) {
+      this.$store.dispatch('wishes/removeFromWishes', wish)
+    },
+    addToWishes () {
+      const wish = {
+        id: this.product.id,
+        image: this.product.images[0],
+        title: this.product.title,
+        color: this.product.color,
+        price: this.product.price
+      }
+      if (this.isWishExists) {
+        this.removeFromWishes(wish)
+      } else {
+        this.$store.dispatch('wishes/addToWishes', wish)
+      }
+    }
+  },
+  computed: {
+    ...mapGetters({
+      wishes: 'wishes/getWishes'
+    }),
+    isWishExists () {
+      let bool = false
+      this.wishes.forEach(item => {
+        if (
+          item.id == this.product.id &&
+          item.color.title == this.product.color.title
+        ) {
+          bool = true
+        }
+      })
+      return bool
     }
   },
   created () {
@@ -145,38 +168,31 @@ export default {
 
 <style lang="scss">
 .popup-product {
-  min-height: 70vh;
-  min-width: 70vw;
+  max-width: 70vw;
+  max-height: 70vh;
   display: flex;
-
-  // .popup-product__loading
-
-  &__loading {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-
-  // .popup-product__content
-
-  &__content {
-    display: flex;
-    gap: 30px;
-    width: 70vw;
+  @media screen and (max-width: 992px) {
+    flex-direction: column;
+    width: auto;
   }
 
   // .popup-product__slider
 
   &__slider {
-    flex: 1 1 0;
+    flex: 0 0 52%;
+    padding-right: 30px;
     min-width: 0;
+    @media screen and (max-width: 992px) {
+      max-width: 400px;
+      padding-right: 0;
+      padding-bottom: 20px;
+    }
   }
 
   // .popup-product__info
 
   &__info {
-    flex: 1 1 0;
+    flex: 1 1 auto;
   }
 
   // .popup-product__head
@@ -313,14 +329,17 @@ export default {
     }
   }
 
-  // .popup-product__add
+  // .popup-product__buttons
 
-  &__add {
+  &__buttons {
+    display: flex;
+    gap: 15px;
   }
 
-  // .popup-product__add-btn
+  // .popup-product__cart-btn
 
-  &__add-btn {
+  &__cart-btn {
+    min-width: 225px;
     border: 1px solid black;
     background-color: transparent;
     font-size: 20px;
@@ -332,6 +351,33 @@ export default {
       background-color: black;
       color: white;
     }
+    &:disabled {
+      background-color: black;
+      color: white;
+    }
   }
+
+  // .popup-product__wish-btn
+
+  &__wish-btn {
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+    & img {
+      width: 30px;
+    }
+  }
+}
+
+// Animation
+
+.list-enter-active,
+.list-leave-active {
+  transition: all 0.5s ease;
+}
+
+.list-enter-from,
+.list-leave-to {
+  transform: scale(0);
 }
 </style>

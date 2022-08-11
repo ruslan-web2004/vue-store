@@ -125,7 +125,7 @@ export default {
 
 .list-enter-from,
 .list-leave-to {
-  transform: translateX(300px);
+  transform: translateX(200px);
   opacity: 0;
 }
 </style>

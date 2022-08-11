@@ -1,20 +1,21 @@
 <template>
-  <div class="cart">
+  <section class="cart">
     <div class="container">
       <div class="cart__arrange" v-if="cartItems.length">
         <div class="cart__bag">
           <div class="cart__bag-head">
-            <button class="cart__remove-all" @click="confirmCleanCart">
+            <button class="cart__clean" @click="confirmCleanCart">
               Удалить все
             </button>
           </div>
           <div class="cart__bag-items">
             <cart-item
               class="cart__bag-item"
-              v-for="(product, index) in cartItems"
-              @remove-from-cart="removeFromCart(index)"
-              :key="product.title"
-              :product="product"
+              v-for="item in cartItems"
+              :key="item.title"
+              :item="item"
+              @remove-from-cart="removeFromCartConfirm(item)"
+              @add-to-wishes="addToWishesConfirm(item)"
             />
           </div>
         </div>
@@ -39,14 +40,13 @@
       </div>
       <transition name="show"> </transition>
     </div>
-  </div>
+  </section>
 </template>
 
 <script>
 import CartItem from '../components/CartItem.vue'
 import { mapActions, mapGetters } from 'vuex'
 import useConfirmBeforeActions from '../useConfirmBeforeActions'
-import gsap from 'gsap'
 export default {
   components: {
     CartItem
@@ -68,14 +68,39 @@ export default {
     ...mapActions({
       cleanCart: 'cart/cleanCart'
     }),
-    removeFromCart (index) {
+    removeFromCart (item) {
+      this.$store.dispatch('cart/removeFromCart', item)
+    },
+    removeFromCartConfirm (item) {
       useConfirmBeforeActions(
         () => {
-          this.$store.dispatch('cart/removeFromCart', index)
+          this.removeFromCart(item)
         },
         {
           title: 'Удалить товар',
           question: 'Вы действительно хотите удалить этот товар?'
+        }
+      )
+    },
+    addToWishes (product) {
+      const item = {
+        id: product.id,
+        image: product.image,
+        title: product.title,
+        color: product.color,
+        price: product.price
+      }
+      this.$store.dispatch('wishes/addToWishes', item)
+    },
+    addToWishesConfirm(item) {
+      useConfirmBeforeActions(
+        () => {
+          this.addToWishes(item)
+          this.removeFromCart(item)
+        },
+        {
+          title: 'Переместить товар',
+          question: 'Вы действительно хотите переместить этот товар из корзины в избранное?'
         }
       )
     },
@@ -101,6 +126,9 @@ export default {
   &__arrange {
     display: flex;
     gap: 20px;
+    @media screen and (max-width: 992px) {
+      flex-direction: column;
+    }
   }
 
   // .cart__bag
@@ -108,7 +136,7 @@ export default {
   &__bag {
     background-color: white;
     padding: 15px;
-    flex: 0 0 67%;
+    flex: 1 1 auto;
   }
 
   // .cart__bag-head
@@ -118,9 +146,9 @@ export default {
     border-bottom: 1px solid #eff3f6;
   }
 
-  // .cart__remove-all
+  // .cart__clean
 
-  &__remove-all {
+  &__clean {
     border: none;
     color: #f91155;
     font-size: 14px;
@@ -185,6 +213,9 @@ export default {
 
   &__summary-description {
     color: #808d9a;
+    @media screen and (max-width: 992px) {
+      font-size: 14px;
+    }
   }
 
   // .cart__summary-content

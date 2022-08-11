@@ -9,21 +9,14 @@
       <p class="product__title">{{ product.title }}</p>
       <div class="product__content">
         <span class="product__price">{{ product.price }}</span>
-        <div class="product__content-block">
-          <button class="product__btn" @click="$emit('open-popup')">
-            <img src="../assets/icons/cart.svg" alt="" />
-          </button>
-          <button @click="addWish" class="product__btn">
-            <img v-if="!isItemExists" src="../assets/icons/wish.svg" alt="" />
-            <img v-else src="../assets/icons/active-wish.svg" alt="" />
-          </button>
-        </div>
+        <button class="product__btn" @click="$emit('open-popup')">
+          <img src="../assets/icons/cart.svg" alt="" />
+        </button>
       </div>
     </div>
   </article>
 </template>
 <script>
-import { mapGetters } from 'vuex'
 export default {
   props: {
     product: {
@@ -33,39 +26,14 @@ export default {
     }
   },
   emits: {
-    "open-popup": null
-  },
-  computed: {
-    ...mapGetters({
-      wishItems: 'wish/getWishItems'
-    }),
-    isItemExists () {
-      let bool = false
-      this.wishItems.forEach(item => {
-        if (item.id == this.product.id) {
-          bool = true
-        }
-      })
-      return bool
-    }
-  },
-  methods: {
-    addWish () {
-      const item = {
-        id: this.product.id,
-        image: this.product.images[0],
-        title: this.product.title,
-        price: this.product.price
-      }
-      this.$store.dispatch('wish/addWish', item)
-    }
+    'open-popup': null
   }
 }
 </script>
 <style lang="scss">
 .product {
   position: relative;
-  padding: 10px;
+  padding: 15px;
   &:hover {
     .product__actions {
       opacity: 1;
@@ -99,7 +67,7 @@ export default {
   &__title {
     font-size: 14px;
     color: gray;
-    margin-bottom: 25px;
+    margin-bottom: 10px;
     height: 35px;
   }
 
@@ -176,6 +144,12 @@ export default {
     &.active {
       border: 1px solid black;
     }
+  }
+  @media screen and (max-width: 850px) {
+    padding: 10px;
+  }
+  @media screen and (max-width: 500px) {
+    padding: 5px;
   }
 }
 </style>

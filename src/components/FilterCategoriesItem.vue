@@ -72,6 +72,12 @@ export default {
       transition: 0.25s ease;
       box-shadow: inset 0 0 0 2px black;
     }
+    @media screen and (max-width: 850px) {
+      font-size: 14px;
+    }
+    @media screen and (max-width: 500px) {
+      font-size: 12px;
+    }
   }
 }
 </style>

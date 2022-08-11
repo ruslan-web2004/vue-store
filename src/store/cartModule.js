@@ -26,7 +26,11 @@ export const cartModule = {
       if (state.cartItems.length) {
         let isCartItemExists = false
         state.cartItems.map(cartItem => {
-          if (item.id == cartItem.id && item.size == cartItem.size) {
+          if (
+            item.id == cartItem.id &&
+            item.size == cartItem.size &&
+            item.color.title == cartItem.color.title
+          ) {
             isCartItemExists = true
             cartItem.quantity++
           }
@@ -38,10 +42,18 @@ export const cartModule = {
         state.cartItems.push(item)
       }
     },
-    removeFromCart (state, index) {
-      state.cartItems.splice(index, 1)
+    removeFromCart (state, item) {
+      state.cartItems.forEach((cartItem, index) => {
+        if (
+          cartItem.id == item.id &&
+          cartItem.color.title == item.color.title &&
+          cartItem.size == item.size
+        ) {
+          state.cartItems.splice(index, 1)
+        }
+      })
     },
-    cleanCart(state) {
+    cleanCart (state) {
       state.cartItems = []
     }
   },
@@ -49,10 +61,10 @@ export const cartModule = {
     addToCart ({ commit }, item) {
       commit('addToCart', item)
     },
-    removeFromCart ({ commit }, index) {
-      commit('removeFromCart', index)
+    removeFromCart ({ commit }, item) {
+      commit('removeFromCart', item)
     },
-    cleanCart ({commit}) {
+    cleanCart ({ commit }) {
       commit('cleanCart')
     }
   },

@@ -4,7 +4,7 @@
       <div class="header__inner">
         <the-logo />
         <div class="header__buttons">
-          <wish-button />
+          <wishes-button />
           <cart-button />
         </div>
       </div>
@@ -14,12 +14,12 @@
 
 <script>
 import TheLogo from './TheLogo.vue'
-import WishButton from './WishButton.vue'
+import WishesButton from './WishesButton.vue'
 import CartButton from './CartButton.vue'
 export default {
   components: {
     TheLogo,
-    WishButton,
+    WishesButton,
     CartButton
   }
 }

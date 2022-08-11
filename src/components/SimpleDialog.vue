@@ -8,10 +8,7 @@
         <button class="modal__button modal__button--confirm" @click="confirm">
           Ок
         </button>
-        <button
-          class="modal__button modal__button--cancel"
-          @click="cancel"
-        >
+        <button class="modal__button modal__button--cancel" @click="cancel">
           Отмена
         </button>
       </div>
@@ -20,7 +17,7 @@
 </template>
 <script setup>
 import { onMounted } from 'vue'
-import gsap from 'gsap'
+import { animationEnter, animationLeave } from '../animations/modal'
 const props = defineProps({
   title: {
     type: String,
@@ -36,31 +33,17 @@ const emit = defineEmits({
   cancel: null
 })
 
-const animationEnter = () => {
-  const tl = gsap.timeline()
-  tl
-    .from('.modal__container', { duration: 0.5, opacity: 0 })
-    .from('.modal__body', { duration: 0.5, y: -300, opacity: 0 }, '-=0.5')
-}
-
-const animationLeave = () => {
-  const tl = gsap.timeline()
-  tl
-    .to('.modal__container', { duration: 0.5, opacity: 0 })
-    .to('.modal__body', { duration: 0.5, y: -300, opacity: 0 }, '-=0.5')
-}
-
 const confirm = () => {
-  animationLeave()
+  animationLeave('.modal__container', '.modal__body')
   setTimeout(() => emit('confirm'), 500)
 }
 const cancel = () => {
-  animationLeave()
+  animationLeave('.modal__container', '.modal__body')
   setTimeout(() => emit('cancel'), 500)
 }
 
 onMounted(() => {
-  animationEnter()
+  animationEnter('.modal__container', '.modal__body')
 })
 </script>
 <style lang="scss">
@@ -87,9 +70,12 @@ onMounted(() => {
     border-radius: 15px;
     text-align: center;
     padding: 20px 40px;
-    min-width: 400px;
+    width: 400px;
     display: flex;
     flex-direction: column;
+    @media screen and (max-width: 992px) {
+      width: 300px;
+    }
   }
 
   // .modal__close
@@ -118,6 +104,10 @@ onMounted(() => {
     max-width: 400px;
     line-height: 1.43em;
     padding: 24px 0 32px;
+    @media screen and (max-width: 992px) {
+      padding: 12px 0;
+      font-size: 14px;
+    }
   }
 
   // .modal__action

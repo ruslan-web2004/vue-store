@@ -1,16 +1,11 @@
 <template>
-  <the-products />
+    <the-products />
 </template>
-
 <script>
 import TheProducts from '../components/TheProducts.vue'
 export default {
-  components: {
-    TheProducts
-  }
+    components: {
+        TheProducts
+    }
 }
 </script>
-
-<style>
-
-</style>

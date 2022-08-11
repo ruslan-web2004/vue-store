@@ -4,7 +4,7 @@ export const productsModule = {
   state: () => ({
     products: [],
     isLoading: true,
-    limit: 3
+    productsCount: 0
   }),
   getters: {
     getProducts (state) {
@@ -12,6 +12,9 @@ export const productsModule = {
     },
     getIsLoading (state) {
       return state.isLoading
+    },
+    getProductsCount (state) {
+      return state.productsCount
     }
   },
   mutations: {
@@ -20,6 +23,9 @@ export const productsModule = {
     },
     setIsLoading (state, payload) {
       state.isLoading = payload
+    },
+    setProductsCount (state, payload) {
+      state.productsCount = payload
     }
   },
   actions: {
@@ -30,12 +36,13 @@ export const productsModule = {
         {
           params: {
             page: payload.page,
-            limit: state.limit,
+            limit: payload.limit,
             category: payload.category
           }
         }
       )
-      commit('setProducts', response.data)
+      commit('setProducts', response.data.data)
+      commit('setProductsCount', response.data.count)
       commit('setIsLoading', false)
     }
   },

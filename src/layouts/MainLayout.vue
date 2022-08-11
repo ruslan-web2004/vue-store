@@ -1,10 +1,12 @@
 <template>
   <the-header />
-  <router-view v-slot="{ Component }">
-  <transition name="page" mode="out-in">
-    <component :is="Component" />
-  </transition>
-</router-view>
+  <main class="main">
+    <router-view v-slot="{ Component }">
+      <transition name="page" mode="out-in">
+        <component :is="Component" />
+      </transition>
+    </router-view>
+  </main>
 </template>
 
 <script>
@@ -15,14 +17,23 @@ export default {
   }
 }
 </script>
-<style>
-.page-enter-from, .page-leave-t0 {
+<style lang="scss">
+.main {
+  flex: 1 1 auto;
+}
+
+// Animation
+
+.page-enter-from,
+.page-leave-t0 {
   opacity: 0;
 }
-.page-enter-active, .page-leave-active {
+.page-enter-active,
+.page-leave-active {
   transition: all 0.3s ease;
 }
-.page-enter-to, .page-leave-from {
+.page-enter-to,
+.page-leave-from {
   opacity: 1;
 }
 </style>

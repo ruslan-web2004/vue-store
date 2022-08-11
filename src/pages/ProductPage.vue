@@ -1,64 +1,89 @@
 <template>
-  <div class="container">
-    <div class="product-intro">
-      <product-slider class="product-intro__slider" :images="product.images" />
-      <div class="product-intro__info">
-        <div class="product-intro__head">
-          <h1 class="product-intro__head-title">{{ product.title }}</h1>
-          <div class="product-intro__head-price">
-            <span>{{ product.price }}</span>
+  <section class="product-intro">
+    <div class="container">
+      <div class="product-intro__inner">
+        <transition name="fade" mode="out-in">
+          <div v-if="isLoading" class="product-intro__loading">
+            <loading v-model:active="isLoading" />
           </div>
-        </div>
-        <div class="product-intro__select-box">
-          <div class="product-intro__color">
-            <div class="product-intro__color-title">Цвет: <span></span></div>
-            <div class="product-intro__color-items">
-              <button
-                class="product-intro__color-item"
-                v-for="(color, index) in colors"
-                :key="color"
-                :class="{ active: color.value == this.product.color.value }"
-                @click="changeColor(index)"
-                :style="{ background: color.value }"
-              ></button>
+          <div v-else class="product-intro__content">
+            <product-slider
+              class="product-intro__slider"
+              :images="product.images"
+            />
+            <div class="product-intro__info">
+              <div class="product-intro__head">
+                <h1 class="product-intro__head-title">{{ product.title }}</h1>
+                <div class="product-intro__head-price">
+                  <span>{{ product.price }}</span>
+                </div>
+              </div>
+              <div class="product-intro__select-box">
+                <div class="product-intro__color">
+                  <div class="product-intro__color-title">
+                    Цвет: <span></span>
+                  </div>
+                  <div class="product-intro__color-items">
+                    <button
+                      class="product-intro__color-item"
+                      v-for="(color, index) in colors"
+                      :key="color"
+                      :class="{
+                        active: color.value == this.product.color.value
+                      }"
+                      @click="changeColor(index)"
+                      :style="{ background: color.value }"
+                    ></button>
+                  </div>
+                </div>
+                <div class="product-intro__size">
+                  <div class="product-intro__size-title">
+                    Выберите размер
+                    <span v-if="error" class="product-intro__size-title-error"
+                      >Пожалуйста, выберите размер</span
+                    >
+                  </div>
+                  <div ref="size" class="product-intro__size-items">
+                    <button
+                      class="product-intro__size-item"
+                      v-for="size in product.sizes"
+                      :key="size"
+                      :class="{ active: size == this.size }"
+                      @click="changeSize(size)"
+                    >
+                      {{ size }}
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div class="product-intro__buttons">
+                <button class="product-intro__cart-btn" @click="addToCart">
+                  <span>Добавить в корзину</span>
+                </button>
+                <button class="product-intro__wish-btn" @click="addToWishes">
+                  <transition name="fade" mode="out-in">
+                    <img v-if="!isWishExists" src="../assets/icons/wish.svg" />
+                    <img v-else src="../assets/icons/active-wish.svg" />
+                  </transition>
+                </button>
+              </div>
             </div>
           </div>
-          <div class="product-intro__size">
-            <div class="product-intro__size-title">
-              Выберите размер
-              <span v-if="error" class="product-intro__size-title-error"
-                >Пожалуйста, выберите размер</span
-              >
-            </div>
-            <div class="product-intro__size-items">
-              <button
-                class="product-intro__size-item"
-                v-for="size in product.sizes"
-                :key="size"
-                :class="{ active: size == this.size }"
-                @click="changeSize(size)"
-              >
-                {{ size }}
-              </button>
-            </div>
-          </div>
-        </div>
-        <div class="product-intro__add">
-          <button class="product-intro__add-btn" @click="createItem">
-            Добавить в корзину
-          </button>
-        </div>
+        </transition>
       </div>
     </div>
-  </div>
+  </section>
 </template>
 <script>
 import ProductSlider from '../components/ProductSlider.vue'
 import fetchProduct from '../fetchProduct'
-import gsap from 'gsap'
+import { mapGetters } from 'vuex'
+import Loading from 'vue-loading-overlay'
+import shake from '../animations/shake'
 export default {
   components: {
-    ProductSlider
+    ProductSlider,
+    Loading
   },
   data () {
     return {
@@ -66,6 +91,7 @@ export default {
       colors: [],
       groupProducts: [],
       size: '',
+      isLoading: true,
       error: false
     }
   },
@@ -73,38 +99,62 @@ export default {
     changeSize (size) {
       this.size = size
     },
-    changeColor (id) {
-      this.product = this.groupProducts[id]
+    changeColor (index) {
+      this.product = this.groupProducts[index]
     },
-    addToCart (item) {
-      this.$store.dispatch('cart/addToCart', item)
-    },
-    createItem () {
+    addToCart () {
       if (this.size !== '') {
+        if (this.error) {
+          this.error = false
+        }
         const item = {
           id: this.product.id,
           image: this.product.images[0],
           title: this.product.title,
           color: this.product.color,
           size: this.size,
-          category: this.product.category,
           price: this.product.price,
           quantity: 1
         }
-        this.addToCart(item)
-        if (this.error) {
-          this.error = false
-        }
+        this.$store.dispatch('cart/addToCart', item)
       } else {
-        const tl = gsap.timeline()
-        tl.from('.product-intro__size-items', { duration: 0.1, x: 10 })
-          .from('.product-intro__size-items', { duration: 0.1, x: -10 })
-          .from('.product-intro__size-items', { duration: 0.1, x: 10 })
-          .from('.product-intro__size-items', { duration: 0.1, x: -10 })
-          .from('.product-intro__size-items', { duration: 0.1, x: 10 })
-          .from('.product-intro__size-items', { duration: 0.1, x: -10 })
+        shake('.product-intro__size-items')
         this.error = true
       }
+    },
+    removeFromWishes (wish) {
+      this.$store.dispatch('wishes/removeFromWishes', wish)
+    },
+    addToWishes () {
+      const wish = {
+        id: this.product.id,
+        image: this.product.images[0],
+        title: this.product.title,
+        color: this.product.color,
+        price: this.product.price
+      }
+      if (this.isWishExists) {
+        this.removeFromWishes(wish)
+      } else {
+        this.$store.dispatch('wishes/addToWishes', wish)
+      }
+    }
+  },
+  computed: {
+    ...mapGetters({
+      wishes: 'wishes/getWishes'
+    }),
+    isWishExists () {
+      let bool = false
+      this.wishes.forEach(item => {
+        if (
+          item.id == this.product.id &&
+          item.color.title == this.product.color.title
+        ) {
+          bool = true
+        }
+      })
+      return bool
     }
   },
   created () {
@@ -112,19 +162,45 @@ export default {
       this.product = response
       this.colors = response.colors
       this.groupProducts = response.groupProducts
+      this.isLoading = false
     })
   }
 }
 </script>
 <style lang="scss">
 .product-intro {
-  display: flex;
-  gap: 30px;
+
+  // .product-intro__loading
+
+  &__loading {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  // .product-intro__content
+
+  &__content {
+    display: flex;
+    gap: 30px;
+    @media screen and (max-width: 768px) {
+      flex-direction: column;
+    }
+  }
+
+  // .product-intro__slider
 
   &__slider {
     min-width: 0;
     flex: 1 1 0;
+    @media screen and (max-width: 768px) {
+      max-width: 400px;
+    }
   }
+
+  // .product-intro__infor
 
   &__info {
     flex: 1 1 0;
@@ -253,14 +329,17 @@ export default {
     }
   }
 
-  // .product-intro__add
+  // .product-intro__buttons
 
-  &__add {
+  &__buttons {
+    display: flex;
+    gap: 20px;
   }
 
-  // .product-intro__add-btn
+  // .product-intro__cart-btn
 
-  &__add-btn {
+  &__cart-btn {
+    min-width: 225px;
     border: 1px solid black;
     background-color: transparent;
     font-size: 20px;
@@ -271,6 +350,21 @@ export default {
     &:hover {
       background-color: black;
       color: white;
+    }
+    &:disabled {
+      background-color: black;
+      color: white;
+    }
+  }
+
+  // .product-intro__wish-btn
+
+  &__wish-btn {
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+    & img {
+      width: 35px;
     }
   }
 }

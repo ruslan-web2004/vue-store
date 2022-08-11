@@ -1,7 +1,7 @@
 <template>
-  <router-link :to="{ name: 'wishlist' }" class="wish-button">
-    <img class="wish-button__icon" src="../assets/icons/wish.svg" alt="" />
-    <div class="wish-button__count" v-if="count > 0">
+  <router-link :to="{ name: 'wishes' }" class="wishes-button">
+    <img class="wishes-button__icon" src="../assets/icons/wish.svg" alt="" />
+    <div class="wishes-button__count" v-if="count > 0">
       <span>{{ count }}</span>
     </div>
   </router-link>
@@ -12,27 +12,26 @@ import { mapGetters } from 'vuex'
 export default {
   computed: {
     ...mapGetters({
-      count: 'wish/getWishItemsCount'
+      count: 'wishes/getWishesCount'
     })
   }
 }
 </script>
 
 <style lang="scss">
-.wish-button {
+.wishes-button {
   border: none;
   background-color: transparent;
   cursor: pointer;
-  width: 30px;
-  height: 30px;
+  width: 40px;
   color: black;
   text-decoration: none;
   display: flex;
   align-items: center;
-  // .wish-button__icon
+  // .wishes-button__icon
 
   &__icon {
-    width: 100%;
+    width: 30px;
   }
 }
 </style>
