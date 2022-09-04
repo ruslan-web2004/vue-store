@@ -45,7 +45,7 @@
 
 <script>
 import CartItem from '../components/CartItem.vue'
-import { mapActions, mapGetters } from 'vuex'
+import { mapGetters, mapState } from 'vuex'
 import useConfirmBeforeActions from '../useConfirmBeforeActions'
 export default {
   components: {
@@ -59,17 +59,16 @@ export default {
     }
   },
   computed: {
+    ...mapState({
+      cartItems: state => state.cart.cartItems
+    }),
     ...mapGetters({
-      cartItems: 'cart/getCartItems',
       totalPrice: 'cart/getTotalPrice'
     })
   },
   methods: {
-    ...mapActions({
-      cleanCart: 'cart/cleanCart'
-    }),
     removeFromCart (item) {
-      this.$store.dispatch('cart/removeFromCart', item)
+      this.$store.commit('cart/removeFromCart', item)
     },
     removeFromCartConfirm (item) {
       useConfirmBeforeActions(
@@ -90,7 +89,7 @@ export default {
         color: product.color,
         price: product.price
       }
-      this.$store.dispatch('wishes/addToWishes', item)
+      this.$store.commit('wishes/addToWishes', item)
     },
     addToWishesConfirm(item) {
       useConfirmBeforeActions(
@@ -107,7 +106,7 @@ export default {
     confirmCleanCart () {
       useConfirmBeforeActions(
         () => {
-          this.cleanCart()
+          this.$store.commit('cart/cleanCart')
         },
         {
           title: 'Удалить товары',

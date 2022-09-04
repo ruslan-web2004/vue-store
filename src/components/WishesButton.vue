@@ -8,11 +8,11 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapState } from 'vuex'
 export default {
   computed: {
-    ...mapGetters({
-      count: 'wishes/getWishesCount'
+    ...mapState({
+      count: state => state.wishes.wishes.length
     })
   }
 }

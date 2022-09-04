@@ -2,30 +2,10 @@ export const wishesModule = {
   state: () => ({
     wishes: []
   }),
-  getters: {
-    getWishes (state) {
-      return state.wishes
-    },
-    getWishesCount (state) {
-      return state.wishes.length
-    }
-  },
   mutations: {
     addToWishes (state, item) {
-      state.wishes.push(item)
-    },
-    removeFromWishes (state, item) {
-      state.wishes.forEach((wish, index) => {
-        if (wish.id == item.id) {
-          state.wishes.splice(index, 1)
-        }
-      })
-    }
-  },
-  actions: {
-    addToWishes ({ state, commit }, item) {
       let isWishExists = false
-      if (state.wishes.length > 0) {
+      if (state.wishes.length) {
         state.wishes.forEach(wish => {
           if (
             wish.id == item.id &&
@@ -35,14 +15,15 @@ export const wishesModule = {
           }
         })
       }
-      if (isWishExists) {
-        return
-      } else {
-        commit('addToWishes', item)
-      }
+      if (isWishExists) return
+      state.wishes.unshift(item)
     },
-    removeFromWishes ({ commit }, item) {
-      commit('removeFromWishes', item)
+    removeFromWishes (state, item) {
+      state.wishes.forEach((wish, index) => {
+        if (wish.id == item.id) {
+          state.wishes.splice(index, 1)
+        }
+      })
     }
   },
   namespaced: true

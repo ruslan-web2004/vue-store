@@ -6,7 +6,7 @@
           <the-filter
             class="products__filter"
             @select-category="selectCategory"
-            :selectedCategory="selectedCategory"
+            :category="category"
           />
         </div>
         <div class="products__right">
@@ -21,29 +21,27 @@
                   v-for="product in products"
                   :key="product.id"
                   :product="product"
-                  @open-popup="openPopup(product.id)"
                 />
               </div>
               <div
-                v-if="products.length == 0 && !isLoading"
+                v-if="!products.length"
                 class="products__empty"
               >
                 Ничего не найдено
               </div>
               <div class="products__pagination">
                 <paginate
-                  v-model="selectedPage"
-                  :value="Number(selectedPage)"
+                  v-model="page"
                   :page-count="totalPages"
                   :page-range="3"
                   :margin-pages="2"
-                  :click-handler="selectPage"
+                  :clickHandler="selectPage"
                   :prev-class="'pagination__button'"
                   :prev-link-class="'pagination__prev'"
                   :next-class="'pagination__button'"
                   :next-link-class="'pagination__next'"
-                  :prev-text="'<img src=src/assets/icons/arrow-right.svg />'"
-                  :next-text="'<img src=src/assets/icons/arrow-right.svg />'"
+                  :prev-text="'Prev'"
+                  :next-text="'Next'"
                   :container-class="'pagination'"
                   :page-class="'pagination__item'"
                   :page-link-class="'pagination__link'"
@@ -52,115 +50,60 @@
             </div>
           </transition>
         </div>
-        <transition name="fade">
-          <product-popup
-            v-if="isPopupOpen"
-            :popupProductId="Number(popupProductId)"
-            @close="closePopup"
-          />
-        </transition>
       </div>
     </div>
   </section>
 </template>
 <script>
 import ProductItem from './ProductItem.vue'
-import ProductPopup from './ProductPopup.vue'
 import TheFilter from './TheFilter.vue'
 import Paginate from 'vuejs-paginate/src/components/Paginate.vue'
 import Loading from 'vue-loading-overlay'
-import { mapGetters } from 'vuex'
+import { mapGetters, mapState, mapActions } from 'vuex'
 export default {
   components: {
     ProductItem,
-    ProductPopup,
     TheFilter,
     Paginate,
     Loading
   },
-  data () {
-    return {
-      selectedPage: 1,
-      selectedCategory: '',
-      limit: 4,
-      isPopupOpen: false,
-      popupProductId: null
-    }
-  },
   methods: {
+    ...mapActions({
+      fetchProducts: 'products/fetchProducts'
+    }),
     selectCategory (category) {
-      this.selectedCategory = category.value
+      this.$store.commit('products/setCategory', category)
     },
     selectPage (page) {
-      this.selectedPage = page
-    },
-    fetchProducts () {
-      this.$store.dispatch('products/fetchProducts', {
-        page: this.selectedPage,
-        limit: this.limit,
-        category: this.selectedCategory
-      })
-    },
-    openPopup (id) {
-      this.isPopupOpen = true
-      this.popupProductId = id
-    },
-    closePopup () {
-      this.isPopupOpen = false
+      this.$store.commit('products/setPage', page)
     }
   },
   computed: {
+    ...mapState({
+      products: state => state.products.products,
+      isLoading: state => state.products.isLoading,
+      category: state => state.products.category,
+      page: state => state.products.page
+    }),
     ...mapGetters({
-      products: 'products/getProducts',
-      isLoading: 'products/getIsLoading',
-      productsCount: 'products/getProductsCount'
+      totalPages: 'products/getTotalPages'
     }),
     pageStateOptions () {
       return {
-        category: this.selectedCategory,
-        page: this.selectedPage
+        category: this.category,
+        page: this.page
       }
-    },
-    totalPages () {
-      return Math.ceil(this.productsCount / this.limit)
     }
   },
   watch: {
-    selectedCategory () {
-      this.selectedPage = 1
+    category () {
+      this.$store.commit('products/setPage', 1)
     },
-    pageStateOptions (value) {
-      if (value.category == '' && value.page == 1) {
-        this.$router.push({ query: {} })
-      } else {
-        this.$router.push({
-          query: { category: value.category, page: value.page }
-        })
-      }
-    },
-    async '$route.query' () {
-      if (Object.keys(this.$route.query).length === 0) {
-        this.selectedCategory = ''
-        this.selectedPage = 1
-      } else {
-        this.selectedCategory = this.$route.query.category
-        this.selectedPage = this.$route.query.page
-      }
+    pageStateOptions () {
       this.fetchProducts()
-    },
-    isPopupOpen () {
-      if (this.isPopupOpen) {
-        document.documentElement.style.overflow = 'hidden'
-        return
-      }
-      document.documentElement.style.overflow = 'auto'
     }
   },
   created () {
-    if (Object.keys(this.$route.query).length) {
-      this.selectedCategory = this.$route.query.category
-      this.selectedPage = this.$route.query.page
-    }
     this.fetchProducts()
   }
 }

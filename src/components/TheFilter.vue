@@ -3,7 +3,7 @@
     <filter-categories
       class="filter__categories"
       @select-category="selectCategory"
-      :selectedCategory="selectedCategory"
+      :selectedCategory="category"
     />
   </div>
 </template>
@@ -18,13 +18,12 @@ export default {
     'select-category': value => typeof value === 'object'
   },
   props: {
-    selectedCategory: {
-      type: String,
+    category: {
+      type: Object,
       required: true,
       default: ''
     }
   },
-  computed: {},
   methods: {
     selectCategory (category) {
       this.$emit('select-category', category)

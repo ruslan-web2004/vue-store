@@ -8,11 +8,11 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapState } from 'vuex'
 export default {
   computed: {
-    ...mapGetters({
-      count: 'cart/getCartItemsCount'
+    ...mapState({
+      count: state => state.cart.cartItems.length
     })
   }
 }

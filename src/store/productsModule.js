@@ -2,48 +2,59 @@ import axios from 'axios'
 
 export const productsModule = {
   state: () => ({
+    category: {
+      title: 'Все',
+      value: ''
+    },
+    page: 1,
+    limit: 4,
     products: [],
     isLoading: true,
-    productsCount: 0
+    totalResults: 0
   }),
   getters: {
-    getProducts (state) {
-      return state.products
-    },
-    getIsLoading (state) {
-      return state.isLoading
-    },
-    getProductsCount (state) {
-      return state.productsCount
+    getTotalPages (state) {
+      return Math.ceil(state.totalResults / state.limit)
     }
   },
   mutations: {
+    setCategory (state, payload) {
+      state.category = payload
+    },
+    setPage (state, payload) {
+      state.page = payload
+    },
     setProducts (state, payload) {
       state.products = payload
     },
-    setIsLoading (state, payload) {
+    setLoading (state, payload) {
       state.isLoading = payload
     },
-    setProductsCount (state, payload) {
-      state.productsCount = payload
+    setTotalResults (state, payload) {
+      state.totalResults = payload
     }
   },
   actions: {
-    async fetchProducts ({ state, commit }, payload) {
-      commit('setIsLoading', true)
-      const response = await axios.get(
-        'https://6295cdfa810c00c1cb680de8.mockapi.io/products-min',
-        {
-          params: {
-            page: payload.page,
-            limit: payload.limit,
-            category: payload.category
+    async fetchProducts ({ state, commit }) {
+      commit('setLoading', true)
+      try {
+        const response = await axios.get(
+          'https://6295cdfa810c00c1cb680de8.mockapi.io/products-min',
+          {
+            params: {
+              category: state.category.value,
+              page: state.page,
+              limit: state.limit
+            }
           }
-        }
-      )
-      commit('setProducts', response.data.data)
-      commit('setProductsCount', response.data.count)
-      commit('setIsLoading', false)
+        )
+        commit('setProducts', response.data.data)
+        commit('setTotalResults', response.data.count)
+      } catch (error) {
+        console.log(error)
+      } finally {
+        commit('setLoading', false)
+      }
     }
   },
   namespaced: true

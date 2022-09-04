@@ -3,7 +3,7 @@
     <input
       class="category__input"
       @change="$emit('select-category')"
-      :checked="category.value == selectedCategory"
+      :checked="category.value === selectedCategory.value"
       type="radio"
       name="category"
     />
@@ -19,7 +19,7 @@ export default {
       default: {}
     },
     selectedCategory: {
-      type: String,
+      type: Object,
       required: true,
       default: ''
     }

@@ -3,9 +3,6 @@ export const cartModule = {
     cartItems: []
   }),
   getters: {
-    getCartItems (state) {
-      return state.cartItems
-    },
     getTotalPrice (state) {
       if (state.cartItems.length) {
         let result = []
@@ -13,41 +10,33 @@ export const cartModule = {
           result.push(item.price * item.quantity)
         })
         return result.reduce((acc, item) => acc + item, 0)
-      } else {
-        return 0
       }
-    },
-    getCartItemsCount (state) {
-      return state.cartItems.length
+      return 0
     }
   },
   mutations: {
     addToCart (state, item) {
+      let isCartItemExists = false
       if (state.cartItems.length) {
-        let isCartItemExists = false
         state.cartItems.map(cartItem => {
           if (
-            item.id == cartItem.id &&
-            item.size == cartItem.size &&
-            item.color.title == cartItem.color.title
+            item.id === cartItem.id &&
+            item.size === cartItem.size &&
+            item.color.title === cartItem.color.title
           ) {
             isCartItemExists = true
             cartItem.quantity++
           }
         })
-        if (!isCartItemExists) {
-          state.cartItems.push(item)
-        }
-      } else {
-        state.cartItems.push(item)
       }
+      if (!isCartItemExists) state.cartItems.unshift(item)
     },
     removeFromCart (state, item) {
       state.cartItems.forEach((cartItem, index) => {
         if (
-          cartItem.id == item.id &&
-          cartItem.color.title == item.color.title &&
-          cartItem.size == item.size
+          cartItem.id === item.id &&
+          cartItem.color.title === item.color.title &&
+          cartItem.size === item.size
         ) {
           state.cartItems.splice(index, 1)
         }
@@ -55,17 +44,6 @@ export const cartModule = {
     },
     cleanCart (state) {
       state.cartItems = []
-    }
-  },
-  actions: {
-    addToCart ({ commit }, item) {
-      commit('addToCart', item)
-    },
-    removeFromCart ({ commit }, item) {
-      commit('removeFromCart', item)
-    },
-    cleanCart ({ commit }) {
-      commit('cleanCart')
     }
   },
   namespaced: true

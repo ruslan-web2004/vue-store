@@ -19,7 +19,7 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapState } from 'vuex'
 import WishesItem from '../components/WishesItem.vue'
 import useConfirmBeforeActions from '../useConfirmBeforeActions'
 export default {
@@ -30,16 +30,16 @@ export default {
     return {}
   },
   computed: {
-    ...mapGetters({
-      wishes: 'wishes/getWishes',
-      count: 'wishes/getWishesCount'
+    ...mapState({
+      wishes: state => state.wishes.wishes,
+      count: state => state.wishes.wishes.length
     })
   },
   methods: {
     removeFromWishes (wish) {
       useConfirmBeforeActions(
         () => {
-          this.$store.dispatch('wishes/removeFromWishes', wish)
+          this.$store.commit('wishes/removeFromWishes', wish)
         },
         { title: 'Удалить товар', question: 'Удалить товар из избранного?' }
       )

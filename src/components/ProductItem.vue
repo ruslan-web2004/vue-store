@@ -1,23 +1,26 @@
 <template>
-  <article class="product">
-    <router-link :to="{ name: 'productPage', params: { id: product.id } }">
-      <div class="product__image">
-        <img :src="product.images[0]" alt="" />
-      </div>
-    </router-link>
-    <div class="product__body">
-      <p class="product__title">{{ product.title }}</p>
-      <div class="product__content">
-        <span class="product__price">{{ product.price }}</span>
-        <button class="product__btn" @click="$emit('open-popup')">
-          <img src="../assets/icons/cart.svg" alt="" />
-        </button>
-      </div>
-    </div>
-  </article>
+  <div class="product-item">
+    <product-item-preview
+      class="product-item__preview"
+      :product="product"
+      @open-popup="isPopupOpen = true"
+    />
+    <product-item-popup
+      v-if="isPopupOpen"
+      :productId="product.id"
+      @close="isPopupOpen = false"
+    />
+  </div>
 </template>
+
 <script>
+import ProductItemPreview from './ProductItemPreview.vue'
+import ProductItemPopup from './ProductItemPopup.vue'
 export default {
+  components: {
+    ProductItemPreview,
+    ProductItemPopup
+  },
   props: {
     product: {
       type: Object,
@@ -25,131 +28,26 @@ export default {
       default: {}
     }
   },
-  emits: {
-    'open-popup': null
+  data () {
+    return {
+      isPopupOpen: false
+    }
+  },
+  watch: {
+    isPopupOpen (val) {
+      val
+        ? (document.documentElement.style.overflow = 'hidden')
+        : (document.documentElement.style.overflow = 'auto')
+    }
   }
 }
 </script>
+
 <style lang="scss">
-.product {
-  position: relative;
-  padding: 15px;
-  &:hover {
-    .product__actions {
-      opacity: 1;
-      visibility: visible;
-    }
-  }
-  // .product__image
-
-  &__image {
-    position: relative;
-    display: inline-block;
+.product-item {
+  // .product-item__preview
+  &__preview {
     width: 100%;
-    height: 0;
-    padding-bottom: 133%;
-    & img {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-    }
-  }
-
-  // .product__body
-
-  &__body {
-  }
-
-  // .product__title
-
-  &__title {
-    font-size: 14px;
-    color: gray;
-    margin-bottom: 10px;
-    height: 35px;
-  }
-
-  // .product__colors
-
-  &__colors {
-    display: flex;
-    gap: 15px;
-    margin-bottom: 20px;
-  }
-
-  // .product__color
-
-  &__color {
-    width: 22px;
-    height: 22px;
-    border-radius: 100%;
-    border: none;
-    position: relative;
-    &::before {
-      content: '';
-      position: absolute;
-      top: -4px;
-      left: -4px;
-      width: 28px;
-      height: 28px;
-      background: transparent;
-      border: 1px solid black;
-      border-radius: 100%;
-      opacity: 0;
-    }
-    &:hover {
-      &::before {
-        opacity: 0.5;
-      }
-    }
-    &.active {
-      &::before {
-        opacity: 1;
-      }
-    }
-  }
-
-  // .product__content
-
-  &__content {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  // .product__content-block
-
-  &__content-block {
-    display: flex;
-    gap: 10px;
-  }
-
-  // .product__price
-
-  &__price {
-  }
-
-  // .product__btn
-
-  &__btn {
-    border: none;
-    background-color: transparent;
-    cursor: pointer;
-    & img {
-      width: 20px;
-      height: 20px;
-    }
-    &.active {
-      border: 1px solid black;
-    }
-  }
-  @media screen and (max-width: 850px) {
-    padding: 10px;
-  }
-  @media screen and (max-width: 500px) {
-    padding: 5px;
   }
 }
 </style>

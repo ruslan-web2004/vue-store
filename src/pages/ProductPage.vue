@@ -76,8 +76,7 @@
 </template>
 <script>
 import ProductSlider from '../components/ProductSlider.vue'
-import fetchProduct from '../fetchProduct'
-import { mapGetters } from 'vuex'
+import { mapState } from 'vuex'
 import Loading from 'vue-loading-overlay'
 import shake from '../animations/shake'
 export default {
@@ -87,11 +86,7 @@ export default {
   },
   data () {
     return {
-      product: {},
-      colors: [],
-      groupProducts: [],
       size: '',
-      isLoading: true,
       error: false
     }
   },
@@ -100,13 +95,10 @@ export default {
       this.size = size
     },
     changeColor (index) {
-      this.product = this.groupProducts[index]
+      this.$store.commit('currentProduct/setProduct', this.groupProducts[index])
     },
     addToCart () {
-      if (this.size !== '') {
-        if (this.error) {
-          this.error = false
-        }
+      if (this.size) {
         const item = {
           id: this.product.id,
           image: this.product.images[0],
@@ -116,14 +108,11 @@ export default {
           price: this.product.price,
           quantity: 1
         }
-        this.$store.dispatch('cart/addToCart', item)
+        this.$store.commit('cart/addToCart', item)
       } else {
         shake('.product-intro__size-items')
         this.error = true
       }
-    },
-    removeFromWishes (wish) {
-      this.$store.dispatch('wishes/removeFromWishes', wish)
     },
     addToWishes () {
       const wish = {
@@ -133,16 +122,18 @@ export default {
         color: this.product.color,
         price: this.product.price
       }
-      if (this.isWishExists) {
-        this.removeFromWishes(wish)
-      } else {
-        this.$store.dispatch('wishes/addToWishes', wish)
-      }
+      this.isWishExists
+        ? this.$store.commit('wishes/removeFromWishes', wish)
+        : this.$store.commit('wishes/addToWishes', wish)
     }
   },
   computed: {
-    ...mapGetters({
-      wishes: 'wishes/getWishes'
+    ...mapState({
+      wishes: state => state.wishes.wishes,
+      product: state => state.currentProduct.product,
+      colors: state => state.currentProduct.colors,
+      groupProducts: state => state.currentProduct.groupProducts,
+      isLoading: state => state.currentProduct.isLoading
     }),
     isWishExists () {
       let bool = false
@@ -158,12 +149,7 @@ export default {
     }
   },
   created () {
-    fetchProduct(this.$route.params.id).then(response => {
-      this.product = response
-      this.colors = response.colors
-      this.groupProducts = response.groupProducts
-      this.isLoading = false
-    })
+    this.$store.dispatch('currentProduct/fetchProduct', this.$route.params.id)
   }
 }
 </script>

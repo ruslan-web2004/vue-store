@@ -7,7 +7,7 @@
       <form class="categories__list" v-if="isListOpen">
         <filter-categories-item
           class="categories__item"
-          v-for="category in categoryItems"
+          v-for="category in categories"
           :key="category.value"
           :category="category"
           @select-category="selectCategory(category)"
@@ -20,7 +20,6 @@
 
 <script>
 import FilterCategoriesItem from './FilterCategoriesItem.vue'
-import gsap from 'gsap'
 export default {
   components: {
     FilterCategoriesItem
@@ -30,14 +29,14 @@ export default {
   },
   props: {
     selectedCategory: {
-      type: String,
+      type: Object,
       required: true,
       default: ''
     }
   },
   data () {
     return {
-      categoryItems: [
+      categories: [
         {
           title: 'Все',
           value: ''
